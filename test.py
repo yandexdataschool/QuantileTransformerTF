@@ -30,7 +30,7 @@ def test_transform():
         data_transformed_tf_val, data_double_transformed_tf_val = session.run([
             data_transformed_tf, data_double_transformed_tf])
     np.testing.assert_allclose(data_transformed_sk[:, 1:], data_transformed_tf_val)
-    np.testing.assert_allclose(data, data_double_transformed_tf_val)
+    np.testing.assert_allclose(data[:, 1:], data_double_transformed_tf_val)
 
 
 def test_interp():
@@ -42,5 +42,3 @@ def test_interp():
         test_y_val = session.run(test_y_tf)
     interp_np = np.interp(test_x, train_x, train_y)
     np.testing.assert_allclose(interp_np, test_y_val)
-
-test_transform()

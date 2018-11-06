@@ -73,7 +73,17 @@ def interp(query_x, train_x, train_y):
 
 
 class QuantileTransformerTF():
+    """
+    sklearn.preprocessing.QuantileTransformer that can be applied in Tensorflow
+    """
     def __init__(self, sklearn_transformer, sklearn_indices, dtype):
+        """
+        Args:
+        sklearn_transformer: instance of fitted sklearn.preprocessing.QuantileTransformer
+        sklearn_indices: list of feature indices to use. E. g. if you trained
+           a transformer for features+outputs, here you can get separate ones
+        dtype: np.float32/np.float64, the dtype the transformer expects and outputs
+        """
         if sklearn_transformer.output_distribution != 'normal':
             raise ValueError("Only normal distribution is supported")
 
@@ -91,6 +101,15 @@ class QuantileTransformerTF():
         self.dtype = dtype
 
     def transform(self, data, inverse):
+        """
+        Builds a graph for transformation
+        Args:
+        data - tf.Tensor[n_examples, n_features]
+        inverse - bool, whether inverse or forward transform is desired
+        
+        Returns:
+        tf.Tensor[n_examples, n_features] - transformed data
+        """
         with tf.name_scope("QuantileTransformerTF"):
             if inverse:
                 data = self.output_distribution.cdf(data)
