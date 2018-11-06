@@ -118,7 +118,6 @@ class QuantileTransformerTF():
                 this_transformed = self._transform_col(data[:, i],
                                                        self.quantiles[:, i],
                                                        inverse)
-                tf.assert_equal(tf.shape(this_transformed)[0], tf.shape(data)[0])
                 this_transformed.set_shape([data.shape[0]])
                 per_feature_transformed.append(this_transformed)
                 

@@ -40,6 +40,7 @@ def test_interp():
     train_x = np.linspace(-10, 10, num=N)
     train_y = scipy.stats.norm.pdf(train_x)
     test_x = np.array([-20, 0., 1., 2., 7.5, 20, 10, -10], dtype=np.float64)
+    test_y_tf = interp(test_x, train_x, train_y)
     with tf.Session() as session:
         test_y_val = session.run(test_y_tf)
     interp_np = np.interp(test_x, train_x, train_y)
