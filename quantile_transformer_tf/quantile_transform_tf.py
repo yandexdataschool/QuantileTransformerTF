@@ -1,8 +1,10 @@
 import tensorflow as tf
 import numpy as np
 
+
 def nonzero(tensor):
-    return tf.cast(tf.where(tensor)[:,0], tf.int32)
+    return tf.cast(tf.where(tensor)[:, 0], tf.int32)
+
 
 # https://gist.github.com/joshburkart/60de56294b472b75206c3f29c2c81375
 def searchsorted(sorted_array, values_to_insert, scope=None):

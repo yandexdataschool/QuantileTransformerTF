@@ -6,7 +6,7 @@ install:
 - python setup.py install
 - pip install scipy scikit-learn pycodestyle
 script:
-- pycodestyle .
+- pycodestyle . --max-line-length=99
 - nosetests test.py
 deploy:
   provider: pypi

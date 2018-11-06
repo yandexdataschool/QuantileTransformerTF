@@ -8,6 +8,7 @@ from quantile_transformer_tf.quantile_transform_tf import interp
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
+
 def test_transform():
     N = 10000
     rng = np.random.RandomState(223532)
@@ -20,14 +21,18 @@ def test_transform():
         output_distribution="normal",
         random_state=34214)
     data_transformed_sk = transformer.fit_transform(data)
-    data_double_transformed_sk = transformer.inverse_transform(data_transformed_sk)
+    data_double_transformed_sk = transformer.inverse_transform(
+        data_transformed_sk)
     np.testing.assert_allclose(data, data_double_transformed_sk)
 
     # To test that QuantileTransformerTF picks up the right columns
     # we ask it only for [1,2,3] columns and when testing use data[:, 1:]
-    transformer_tf = QuantileTransformerTF(transformer, [1,2,3], dtype=np.float64)
-    data_transformed_tf = transformer_tf.transform(data[:, 1:].astype(np.float64), False)
-    data_double_transformed_tf = transformer_tf.transform(data_transformed_tf, True)
+    transformer_tf = QuantileTransformerTF(
+        transformer, [1,2,3], dtype=np.float64)
+    data_transformed_tf = transformer_tf.transform(
+        data[:, 1:].astype(np.float64), False)
+    data_double_transformed_tf = transformer_tf.transform(
+        data_transformed_tf, True)
 
     with tf.Session() as session:
         data_transformed_tf_val, data_double_transformed_tf_val = session.run([

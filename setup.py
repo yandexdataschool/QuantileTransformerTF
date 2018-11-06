@@ -22,6 +22,6 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     packages=find_packages(),
-    install_requires=['numpy>=1.15.0', 
+    install_requires=['numpy>=1.15.0',
                       'tensorflow>=1.9']
 )
