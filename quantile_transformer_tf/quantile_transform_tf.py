@@ -108,7 +108,7 @@ class QuantileTransformerTF():
         Args:
         data - tf.Tensor[n_examples, n_features]
         inverse - bool, whether inverse or forward transform is desired
-        
+
         Returns:
         tf.Tensor[n_examples, n_features] - transformed data
         """
@@ -122,7 +122,6 @@ class QuantileTransformerTF():
                                                        inverse)
                 this_transformed.set_shape([data.shape[0]])
                 per_feature_transformed.append(this_transformed)
-                
             return tf.stack(per_feature_transformed, axis=1)
 
     def _transform_col(self, data, quantiles, inverse):
@@ -154,7 +153,7 @@ class QuantileTransformerTF():
 
         res = tf.dynamic_stitch(
             [nonzero(upper_bounds_idx), nonzero(~upper_bounds_idx)],
-            [upper_bound_y*tf.ones(tf.count_nonzero(upper_bounds_idx), dtype=self.dtype), 
+            [upper_bound_y*tf.ones(tf.count_nonzero(upper_bounds_idx), dtype=self.dtype),
              tf.boolean_mask(bounded, ~upper_bounds_idx)])
 
         if not inverse:

@@ -26,9 +26,9 @@ def test_transform():
     np.testing.assert_allclose(data, data_double_transformed_sk)
 
     # To test that QuantileTransformerTF picks up the right columns
-    # we ask it only for [1,2,3] columns and when testing use data[:, 1:]
+    # we ask it only for [1, 2, 3] columns and when testing use data[:, 1:]
     transformer_tf = QuantileTransformerTF(
-        transformer, [1,2,3], dtype=np.float64)
+        transformer, [1, 2, 3], dtype=np.float64)
     data_transformed_tf = transformer_tf.transform(
         data[:, 1:].astype(np.float64), False)
     data_double_transformed_tf = transformer_tf.transform(
