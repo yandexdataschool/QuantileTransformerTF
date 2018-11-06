@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/yandexdataschool/QuantileTransformerTF.svg?branch=master)](https://travis-ci.com/yandexdataschool/QuantileTransformerTF) [![DOI](https://zenodo.org/badge/156366202.svg)](https://zenodo.org/badge/latestdoi/156366202)
 
 # QuantileTransformerTF
-Tensorflow implementation of sklearn.preprocessing.QuantileTransformer
+Tensorflow implementation of sklearn.preprocessing.QuantileTransformer. Transform only - please use the sklearn to fit.
 
 Please cite as [![DOI](https://zenodo.org/badge/156366202.svg)](https://zenodo.org/badge/latestdoi/156366202)
