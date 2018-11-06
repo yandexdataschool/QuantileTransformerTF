@@ -3,7 +3,8 @@ import tensorflow as tf
 import numpy as np
 import scipy.stats
 from sklearn.preprocessing import QuantileTransformer
-from tf_quantile_transform import QuantileTransformerTF, interp
+from quantile_transformer_tf import QuantileTransformerTF
+from quantile_transformer_tf.quantile_transform_tf import interp
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
