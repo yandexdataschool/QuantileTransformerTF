@@ -1,17 +1,16 @@
 language: python
 python:
-  - "3.6"
-  - "3.6-dev"  # 3.6 development branch
-#  - "3.7-dev"  # 3.7 development branch, no tf there
-# command to install dependencies
+- '3.6'
+- 3.6-dev
 install:
-  - python setup.py install
-  - pip install scipy scikit-learn
-# command to run tests
+- python setup.py install
+- pip install scipy scikit-learn
 script:
-  - nosetests test.py
+- nosetests test.py
 deploy:
   provider: pypi
-  user: "kazeev"
+  user: kazeev
+  on:
+    tags: true
   password:
-    secure: "Your encrypted password"
+    secure: Bv0x2r4EsBJt2Q0Dy9UpHHE+w6smpfJl3CYRHIVe8QWvBYTUHNqKCBhkXl5FXX36HcoZRzdU6vX3fsX8JHOzv7J2MfU1W5kU4mz2Hac8RtMBlOxtcepbCje1NsjY3471OW47mf9ztOCLVSppOpTmBIu8HRjcony1ItZe0wEWcYdOnnLbm3WZ+kKwO+9e2moHqjn9E5SkbbrC4UU69rkDNfaGswToQMR0mogM1cX+bWqrlUpCuJKRV/Mi+/FgsTZzbcl/iTFlh86zXXaaG4TiYjIeBnfEA9zizpZqq+CgPLRbcjXjxYE0hl6+dkj1JOtyYqgqxcBqdiKbpa5CufxTQjrtN/N7Sk+GZN3KFld6bwEhLBIPX89S6rT0TSAQwjzQMT3hvT9+hIQCvELIP0KqBBbfoBmQ9k9btQIpXR1lIejxCTvy6DQZLHrpE5bcsqdDuG2O61bIc77P5YRC4OT2J57ceQjy5ak38bPb0kSCyZpU9cmP8xvY7MO1jmIAFpJVoLIF+XyRsiVGlX7WaXz1tHPXETjphjO2n2Wi8WH36uHmjOi+umbUNB0BMT03RoejkEtDbFWlLtDluYOn2eIarjJ0HceZAFS5yndh1leCzDBIPdDQZNahd0MyqAOgUlBViCbpZVOeaVNIyDy1YaJy2fXso6FClnL6IsljeTB08z0=
