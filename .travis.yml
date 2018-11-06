@@ -4,8 +4,9 @@ python:
 - 3.6-dev
 install:
 - python setup.py install
-- pip install scipy scikit-learn
+- pip install scipy scikit-learn pycodestyle
 script:
+- pycodestyle .
 - nosetests test.py
 deploy:
   provider: pypi
