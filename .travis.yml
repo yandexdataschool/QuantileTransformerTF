@@ -10,3 +10,8 @@ install:
 # command to run tests
 script:
   - nosetests test.py
+deploy:
+  provider: pypi
+  user: "kazeev"
+  password:
+    secure: "Your encrypted password"
