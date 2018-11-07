@@ -4,7 +4,7 @@ import numpy as np
 import scipy.stats
 from sklearn.preprocessing import QuantileTransformer
 from quantile_transformer_tf import QuantileTransformerTF
-from quantile_transformer_tf.quantile_transform_tf import interp
+from quantile_transformer_tf.interpolate_tf import interp
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
