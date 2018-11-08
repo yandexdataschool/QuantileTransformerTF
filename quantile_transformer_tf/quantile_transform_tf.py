@@ -29,22 +29,32 @@ class QuantileTransformerTF():
         return res
 
     @in_tf_scope
-    def __init__(self, sklearn_transformer, sklearn_indices, dtype):
+    def __init__(self, sklearn_transformer, sklearn_indices=None, dtype=None):
         """
         Args:
         sklearn_transformer: instance of fitted sklearn.preprocessing.QuantileTransformer
         sklearn_indices: list of feature indices to use. E. g. if you trained
-           a transformer for features+outputs, here you can get separate ones
-        dtype: np.float32/np.float64, the dtype the transformer expects and outputs
+           a transformer for features+outputs, here you can get separate ones. If
+           None, takes all the features
+        dtype: np.float32/np.float64, the dtype the transformer expects and outputs.
+           If None defaults to the sklearn_transformer.quantiles_.dtype
         """
         if sklearn_transformer.output_distribution != 'normal':
             raise ValueError("Only normal distribution is supported")
 
+        if dtype is None:
+            dtype = sklearn_transformer.quantiles_.dtype
+
         self.output_distribution = tf.distributions.Normal(
             dtype(0), dtype(1), name="output_distribution")
-        self._quantiles = tf.constant(
-            sklearn_transformer.quantiles_[:, sklearn_indices].astype(dtype),
-            name="quantiles")
+
+        if sklearn_indices is not None:
+            selected_quantiles = sklearn_transformer.quantiles_[:, sklearn_indices]
+        else:
+            selected_quantiles = sklearn_transformer.quantiles_
+
+        self._quantiles = tf.constant(selected_quantiles.astype(dtype),
+                                      name="quantiles")
         self._references = tf.constant(sklearn_transformer.references_.astype(dtype),
                                        name="references")
         self.n_colunms = len(sklearn_indices)
