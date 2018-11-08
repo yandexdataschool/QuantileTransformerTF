@@ -43,7 +43,7 @@ class QuantileTransformerTF():
             raise ValueError("Only normal distribution is supported")
 
         if dtype is None:
-            dtype = sklearn_transformer.quantiles_.dtype
+            dtype = sklearn_transformer.quantiles_.dtype.type
 
         self.output_distribution = tf.distributions.Normal(
             dtype(0), dtype(1), name="output_distribution")
