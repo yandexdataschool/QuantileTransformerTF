@@ -57,7 +57,7 @@ class QuantileTransformerTF():
                                       name="quantiles")
         self._references = tf.constant(sklearn_transformer.references_.astype(dtype),
                                        name="references")
-        self.n_colunms = len(sklearn_indices)
+        self.n_colunms = selected_quantiles.shape[1]
         self.interpolators_by_index = []
         for index in range(self.n_colunms):
             interpolator_quantiles_to_references_forward = InterpolatorTF().fit(
