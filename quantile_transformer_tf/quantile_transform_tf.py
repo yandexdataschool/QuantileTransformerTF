@@ -120,14 +120,16 @@ class QuantileTransformerTF():
         else:
             interpolated = interpolators.references_to_quantiles.interp(data)
 
+        if LooseVersion(tf.__version__) < "1.9"
+
         bounded = tf.dynamic_stitch(
             [nonzero(lower_bounds_idx), nonzero(~lower_bounds_idx)],
-            [lower_bound_y*tf.ones(tf.count_nonzero(lower_bounds_idx), dtype=self.dtype),
+            [tf.tile(lower_bound_y, tf.count_nonzero(lower_bounds_idx)),
              tf.boolean_mask(interpolated, ~lower_bounds_idx)])
 
         res = tf.dynamic_stitch(
             [nonzero(upper_bounds_idx), nonzero(~upper_bounds_idx)],
-            [upper_bound_y*tf.ones(tf.count_nonzero(upper_bounds_idx), dtype=self.dtype),
+            [tf.tile(upper_bound_y, tf.count_nonzero(upper_bounds_idx)),
              tf.boolean_mask(bounded, ~upper_bounds_idx)])
 
         if not inverse:
