@@ -88,12 +88,12 @@ class InterpolatorTF():
         return tf.dynamic_stitch(
             [
                 nonzero(overflow_mask),
-                nonzero(underflow_mask),
-                nonzero(in_range_mask)],
+                nonzero(in_range_mask),
+                nonzero(underflow_mask)],
             [
-                tf.tile(self.high_y, tf.count_nonzero(overflow_mask)),
-                tf.tile(self.low_y, tf.count_nonzero(underflow_mask)),
-                self._interp_inner(tf.boolean_mask(query_x, in_range_mask))
+                tf.fill(tf.count_nonzero(overflow_mask, keep_dims=True), self.high_y),
+                self._interp_inner(tf.boolean_mask(query_x, in_range_mask)),
+                tf.fill(tf.count_nonzero(underflow_mask, keep_dims=True), self.low_y),
             ])
 
     def _interp_inner(self, query_x):

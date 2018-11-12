@@ -110,8 +110,9 @@ class QuantileTransformerTF():
             lower_bound_y = interpolators.low_quantile
             upper_bound_y = interpolators.high_quantile
 
-        lower_bounds_idx = (data - self.BOUNDS_THRESHOLD < lower_bound_x)
-        upper_bounds_idx = (data + self.BOUNDS_THRESHOLD > upper_bound_x)
+        lower_bounds_mask = (data - self.BOUNDS_THRESHOLD < lower_bound_x)
+        upper_bounds_mask = (data + self.BOUNDS_THRESHOLD > upper_bound_x)
+        in_range_mask = tf.logical_not(tf.logical_or(lower_bounds_mask, upper_bounds_mask))
 
         if not inverse:
             interpolated = 0.5*(
@@ -120,17 +121,13 @@ class QuantileTransformerTF():
         else:
             interpolated = interpolators.references_to_quantiles.interp(data)
 
-        if LooseVersion(tf.__version__) < "1.9"
-
-        bounded = tf.dynamic_stitch(
-            [nonzero(lower_bounds_idx), nonzero(~lower_bounds_idx)],
-            [tf.tile(lower_bound_y, tf.count_nonzero(lower_bounds_idx)),
-             tf.boolean_mask(interpolated, ~lower_bounds_idx)])
-
         res = tf.dynamic_stitch(
-            [nonzero(upper_bounds_idx), nonzero(~upper_bounds_idx)],
-            [tf.tile(upper_bound_y, tf.count_nonzero(upper_bounds_idx)),
-             tf.boolean_mask(bounded, ~upper_bounds_idx)])
+            [nonzero(upper_bounds_mask),
+             nonzero(in_range_mask),
+             nonzero(lower_bounds_mask)],
+            [tf.fill(tf.count_nonzero(upper_bounds_mask, keep_dims=True), upper_bound_y),
+             tf.boolean_mask(interpolated, in_range_mask),
+             tf.fill(tf.count_nonzero(lower_bounds_mask, keep_dims=True), lower_bound_y)])
 
         if not inverse:
             res = self.output_distribution.quantile(res)
