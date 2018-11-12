@@ -16,8 +16,24 @@ InterpolatorsTuple = namedtuple(
 
 
 class QuantileTransformerTF():
-    """
-    sklearn.preprocessing.QuantileTransformer that can be applied in Tensorflow
+    """sklearn.preprocessing.QuantileTransformer that can be applied in Tensorflow
+
+    From the sklean documentation:
+    Transform features using quantiles information.
+
+    This method transforms the features to follow a uniform or a
+    normal distribution. Therefore, for a given feature, this
+    transformation tends to spread out the most frequent values. It
+    also reduces the impact of (marginal) outliers: this is therefore
+    a robust preprocessing scheme. The transformation is applied on
+    each feature independently. The cumulative density function of a
+    feature is used to project the original values. Features values of
+    new/unseen data that fall below or above the fitted range will be
+    mapped to the bounds of the output distribution. Note that this
+    transform is non-linear. It may distort linear correlations
+    between variables measured at the same scale but renders variables
+    measured at different scales more directly comparable.
+
     """
 
     scope = "QuantileTransformerTF"
@@ -97,6 +113,17 @@ class QuantileTransformerTF():
             per_feature_transformed.append(this_transformed)
         return tf.stack(per_feature_transformed, axis=1)
 
+    def inverse_transform(self, data):
+        """
+        Builds a graph for inverse transformation
+        Args:
+        data - tf.Tensor[n_examples, n_features]
+
+        Returns:
+        tf.Tensor[n_examples, n_features] - transformed data
+        """
+        return self.transform(data, inverse=True)
+
     @in_tf_scope
     def _transform_col(self, data, interpolators, inverse):
         if not inverse:
@@ -126,9 +153,9 @@ class QuantileTransformerTF():
             [nonzero(upper_bounds_mask),
              nonzero(in_range_mask),
              nonzero(lower_bounds_mask)],
-            [tf.fill(tf.count_nonzero(upper_bounds_mask, keep_dims=True), upper_bound_y),
+            [tf.fill(tf.count_nonzero(upper_bounds_mask, keepdims=True), upper_bound_y),
              interpolated,
-             tf.fill(tf.count_nonzero(lower_bounds_mask, keep_dims=True), lower_bound_y)])
+             tf.fill(tf.count_nonzero(lower_bounds_mask, keepdims=True), lower_bound_y)])
 
         if not inverse:
             res = self.output_distribution.quantile(res)
