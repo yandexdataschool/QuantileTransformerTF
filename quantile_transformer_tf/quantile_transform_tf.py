@@ -29,7 +29,8 @@ class QuantileTransformerTF():
         return res
 
     @in_tf_scope
-    def __init__(self, sklearn_transformer, sklearn_indices=None, dtype=None):
+    def __init__(self, sklearn_transformer, sklearn_indices=None, dtype=None,
+                 old_tf=False):
         """
         Args:
         sklearn_transformer: instance of fitted sklearn.preprocessing.QuantileTransformer
@@ -38,9 +39,11 @@ class QuantileTransformerTF():
            None, takes all the features
         dtype: np.float32/np.float64, the dtype the transformer expects and outputs.
            If None defaults to the sklearn_transformer.quantiles_.dtype
+        old_tf: bool, use only operations available in tensorflow==1.4
         """
         if sklearn_transformer.output_distribution != 'normal':
             raise ValueError("Only normal distribution is supported")
+        self.old_tf = old_tf
 
         if dtype is None:
             dtype = sklearn_transformer.quantiles_.dtype.type
@@ -60,11 +63,11 @@ class QuantileTransformerTF():
         self.n_colunms = selected_quantiles.shape[1]
         self.interpolators_by_index = []
         for index in range(self.n_colunms):
-            interpolator_quantiles_to_references_forward = InterpolatorTF().fit(
+            interpolator_quantiles_to_references_forward = InterpolatorTF(self.old_tf).fit(
                 self._quantiles[:, index], self._references)
-            interpolator_quantiles_to_references_backward = InterpolatorTF().fit(
+            interpolator_quantiles_to_references_backward = InterpolatorTF(self.old_tf).fit(
                 -self._quantiles[::-1, index], -self._references[::-1])
-            interpolator_references_to_quantiles = InterpolatorTF().fit(
+            interpolator_references_to_quantiles = InterpolatorTF(self.old_tf).fit(
                 self._references, self._quantiles[:, index])
             self.interpolators_by_index.append(InterpolatorsTuple(
                 interpolator_quantiles_to_references_forward,
@@ -110,33 +113,43 @@ class QuantileTransformerTF():
             lower_bound_y = interpolators.low_quantile
             upper_bound_y = interpolators.high_quantile
 
-        lower_bounds_idx = (data - self.BOUNDS_THRESHOLD < lower_bound_x)
-        upper_bounds_idx = (data + self.BOUNDS_THRESHOLD > upper_bound_x)
+        lower_bounds_mask = (data - self.BOUNDS_THRESHOLD < lower_bound_x)
+        upper_bounds_mask = (data + self.BOUNDS_THRESHOLD > upper_bound_x)
+
+        in_range_mask = tf.logical_not(tf.logical_or(lower_bounds_mask, upper_bounds_mask))
+        data_in_range = tf.boolean_mask(data, in_range_mask)
 
         if not inverse:
             interpolated = 0.5*(
-                interpolators.quantiles_to_references_forward.interp(data) -
-                interpolators.quantiles_to_references_backward.interp(-data))
+                interpolators.quantiles_to_references_forward.interp(data_in_range) -
+                interpolators.quantiles_to_references_backward.interp(-data_in_range))
         else:
-            interpolated = interpolators.references_to_quantiles.interp(data)
+            interpolated = interpolators.references_to_quantiles.interp(data_in_range)
 
-        if LooseVersion(tf.__version__) < "1.9"
-
-        bounded = tf.dynamic_stitch(
-            [nonzero(lower_bounds_idx), nonzero(~lower_bounds_idx)],
-            [tf.tile(lower_bound_y, tf.count_nonzero(lower_bounds_idx)),
-             tf.boolean_mask(interpolated, ~lower_bounds_idx)])
+        count_low = tf.count_nonzero(lower_bounds_mask)
+        count_high = tf.count_nonzero(upper_bounds_mask)
+        if self.old_tf:
+            count_low = tf.cast(count_low, tf.int32)
+            count_high = tf.cast(count_high, tf.int32)
 
         res = tf.dynamic_stitch(
-            [nonzero(upper_bounds_idx), nonzero(~upper_bounds_idx)],
-            [tf.tile(upper_bound_y, tf.count_nonzero(upper_bounds_idx)),
-             tf.boolean_mask(bounded, ~upper_bounds_idx)])
+            [nonzero(lower_bounds_mask), nonzero(in_range_mask), nonzero(upper_bounds_mask)],
+            [tf.fill(count_low[tf.newaxis], lower_bound_y),
+             interpolated,
+             tf.fill(count_high[tf.newaxis], upper_bound_y)])
 
         if not inverse:
-            res = self.output_distribution.quantile(res)
-            clip_min = self.output_distribution.quantile(tf.constant(
+            if self.old_tf:
+                if not isinstance(self.output_distribution, tf.distributions.Normal):
+                    raise ValueError("Only Normal is supported")
+                from tensorflow.python.ops.distributions import special_math
+                quantile_computer = special_math._ndtri
+            else:
+                quantile_computer = self.output_distribution.quantile
+            res = quantile_computer(res)
+            clip_min = quantile_computer(tf.constant(
                 self.BOUNDS_THRESHOLD - np.spacing(1), dtype=self.dtype))
-            clip_max = self.output_distribution.quantile(tf.constant(
+            clip_max = quantile_computer(tf.constant(
                 1 - (self.BOUNDS_THRESHOLD - np.spacing(1)), dtype=self.dtype))
             res = tf.clip_by_value(res, clip_min, clip_max)
         return res

@@ -1,1 +1,2 @@
+from __future__ import absolute_import
 from .quantile_transform_tf import QuantileTransformerTF

@@ -5,11 +5,13 @@ def nonzero(tensor):
     return tf.cast(tf.where(tensor)[:, 0], tf.int32)
 
 
-def searchsorted(sorted_array, values_to_insert, scope=None):
+def searchsorted(sorted_array, values_to_insert, scope=None, old_tf=False):
     """
     Determine indices within a sorted array at which to insert elements.
     Equivalent of `np.searchsorted`.
     Currently only 1D arrays are supported, but should be easy to extend.
+
+    old_tf: bool, use only operations available in tensorflow==1.4
     https://gist.github.com/joshburkart/60de56294b472b75206c3f29c2c81375
     """
     with tf.name_scope(scope, default_name='searchsorted'):
@@ -24,7 +26,10 @@ def searchsorted(sorted_array, values_to_insert, scope=None):
 
         # Put everything together and argsort.
         concat = tf.concat([sorted_array_tens, values_tens], axis=0)
-        concat_argsort = tf.contrib.framework.argsort(concat)  # pylint: disable=no-member
+        if old_tf:
+            concat_argsort = tf.nn.top_k(-concat, k=tf.shape(concat)[0], sorted=True)[1]
+        else:
+            concat_argsort = tf.contrib.framework.argsort(concat)  # pylint: disable=no-member
 
         # Find indices into `sorted_array` where values should be inserted (but
         # not yet in the right order).
@@ -52,6 +57,12 @@ class InterpolatorTF():
     """
     A 1D linear interpolator
     """
+
+    def __init__(self, old_tf=True):
+        """                                         
+        old_tf: bool, use only operations available in tensorflow==1.4
+        """
+        self.old_tf = old_tf
 
     def fit(self, train_x, train_y):
         """
@@ -85,19 +96,25 @@ class InterpolatorTF():
         overflow_mask = (query_x >= self.high_x)
         underflow_mask = (query_x <= self.low_x)
         in_range_mask = tf.logical_not(tf.logical_or(overflow_mask, underflow_mask))
+        count_low = tf.count_nonzero(underflow_mask)
+        count_high = tf.count_nonzero(overflow_mask)
+        if self.old_tf:
+            count_low = tf.cast(count_low, tf.int32)
+            count_high = tf.cast(count_high, tf.int32)
+
         return tf.dynamic_stitch(
             [
                 nonzero(overflow_mask),
                 nonzero(underflow_mask),
                 nonzero(in_range_mask)],
             [
-                tf.tile(self.high_y, tf.count_nonzero(overflow_mask)),
-                tf.tile(self.low_y, tf.count_nonzero(underflow_mask)),
+                tf.fill(count_low[tf.newaxis], self.low_y),
+                tf.fill(count_high[tf.newaxis], self.high_y),
                 self._interp_inner(tf.boolean_mask(query_x, in_range_mask))
             ])
 
     def _interp_inner(self, query_x):
-        query_indices = searchsorted(self.references, query_x) - 1
+        query_indices = searchsorted(self.references, query_x, old_tf=self.old_tf) - 1
         return tf.gather(self.line_a, query_indices) + tf.gather(self.line_b, query_indices)*(
             query_x - tf.gather(self.references, query_indices))
 
