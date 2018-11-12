@@ -113,20 +113,21 @@ class QuantileTransformerTF():
         lower_bounds_mask = (data - self.BOUNDS_THRESHOLD < lower_bound_x)
         upper_bounds_mask = (data + self.BOUNDS_THRESHOLD > upper_bound_x)
         in_range_mask = tf.logical_not(tf.logical_or(lower_bounds_mask, upper_bounds_mask))
+        data_in_range = tf.boolean_mask(data, in_range_mask)
 
         if not inverse:
             interpolated = 0.5*(
-                interpolators.quantiles_to_references_forward.interp(data) -
-                interpolators.quantiles_to_references_backward.interp(-data))
+                interpolators.quantiles_to_references_forward.interp(data_in_range) -
+                interpolators.quantiles_to_references_backward.interp(-data_in_range))
         else:
-            interpolated = interpolators.references_to_quantiles.interp(data)
+            interpolated = interpolators.references_to_quantiles.interp(data_in_range)
 
         res = tf.dynamic_stitch(
             [nonzero(upper_bounds_mask),
              nonzero(in_range_mask),
              nonzero(lower_bounds_mask)],
             [tf.fill(tf.count_nonzero(upper_bounds_mask, keep_dims=True), upper_bound_y),
-             tf.boolean_mask(interpolated, in_range_mask),
+             interpolated,
              tf.fill(tf.count_nonzero(lower_bounds_mask, keep_dims=True), lower_bound_y)])
 
         if not inverse:
