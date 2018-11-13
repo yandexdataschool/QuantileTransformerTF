@@ -1,10 +1,17 @@
 language: python
 python:
-- '3.6'
+- "3.6"
 - 3.6-dev
+env:
+  - TENSORFLOW_VERSION="==1.9.*"
+  - TENSORFLOW_VERSION="==1.10.*"
+  - TENSORFLOW_VERSION="==1.11.*"
+  - TENSORFLOW_VERSION="==1.12.*"
+  - TENSORFLOW_VERSION=""
 install:
 - python setup.py install
 - pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
+- pip install tensorflow$TENSORFLOW_VERSION
 script:
 - pycodestyle . --max-line-length=99
 - pytest test.py --cov=quantile_transformer_tf/
