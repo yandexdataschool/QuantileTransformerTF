@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.com/yandexdataschool/QuantileTransformerTF.svg?branch=master)](https://travis-ci.com/yandexdataschool/QuantileTransformerTF) [![DOI](https://zenodo.org/badge/156366202.svg)](https://zenodo.org/badge/latestdoi/156366202)
+[![Build Status](https://travis-ci.com/yandexdataschool/QuantileTransformerTF.svg?branch=master)](https://travis-ci.com/yandexdataschool/QuantileTransformerTF) 
+[![Coverage Status](https://coveralls.io/repos/github/yandexdataschool/QuantileTransformerTF/badge.svg?branch=master)](https://coveralls.io/github/yandexdataschool/QuantileTransformerTF?branch=master)
+[![DOI](https://zenodo.org/badge/156366202.svg)](https://zenodo.org/badge/latestdoi/156366202)
 
 # QuantileTransformerTF
 Tensorflow implementation of `sklearn.preprocessing.QuantileTransformer`. Transform only - please use the sklearn to fit.
