@@ -1,4 +1,7 @@
 extraction:
   python:
+    prepare:
+      packages:
+        - python3=3.6
     python_setup: 
       version: 3

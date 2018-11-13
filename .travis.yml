@@ -9,9 +9,9 @@ env:
   - TENSORFLOW_VERSION="==1.12.*"
   - TENSORFLOW_VERSION=""
 install:
-- python setup.py install
 - pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
 - pip install tensorflow$TENSORFLOW_VERSION
+- python setup.py install
 script:
 - pycodestyle . --max-line-length=99
 - pytest test.py --cov=quantile_transformer_tf/
