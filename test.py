@@ -1,8 +1,10 @@
 import os
+import unittest
 import tensorflow as tf
 import numpy as np
 import scipy.stats
 from sklearn.preprocessing import QuantileTransformer
+
 from quantile_transformer_tf import QuantileTransformerTF
 from quantile_transformer_tf.interpolate_tf import interp
 
@@ -145,3 +147,13 @@ def test_interp():
         test_y_val = session.run(test_y_tf)
     interp_np = np.interp(test_x, train_x, train_y)
     np.testing.assert_allclose(interp_np, test_y_val)
+
+
+# In principle, there is little preventing us from supporting
+# other distributions
+class TestNormality(unittest.TestCase):
+    def test_normality(self):
+        transformer = QuantileTransformer(
+            output_distribution="uniform")
+        with self.assertRaises(ValueError):
+            QuantileTransformerTF(transformer)
