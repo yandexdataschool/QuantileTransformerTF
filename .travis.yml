@@ -4,10 +4,10 @@ python:
 - 3.6-dev
 install:
 - python setup.py install
-- pip install scipy scikit-learn pycodestyle
+- pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
 script:
 - pycodestyle . --max-line-length=99
-- nosetests test.py
+- pytest test.py --cov
 deploy:
   provider: pypi
   user: kazeev
@@ -16,3 +16,5 @@ deploy:
     python: 3.6
   password:
     secure: Bv0x2r4EsBJt2Q0Dy9UpHHE+w6smpfJl3CYRHIVe8QWvBYTUHNqKCBhkXl5FXX36HcoZRzdU6vX3fsX8JHOzv7J2MfU1W5kU4mz2Hac8RtMBlOxtcepbCje1NsjY3471OW47mf9ztOCLVSppOpTmBIu8HRjcony1ItZe0wEWcYdOnnLbm3WZ+kKwO+9e2moHqjn9E5SkbbrC4UU69rkDNfaGswToQMR0mogM1cX+bWqrlUpCuJKRV/Mi+/FgsTZzbcl/iTFlh86zXXaaG4TiYjIeBnfEA9zizpZqq+CgPLRbcjXjxYE0hl6+dkj1JOtyYqgqxcBqdiKbpa5CufxTQjrtN/N7Sk+GZN3KFld6bwEhLBIPX89S6rT0TSAQwjzQMT3hvT9+hIQCvELIP0KqBBbfoBmQ9k9btQIpXR1lIejxCTvy6DQZLHrpE5bcsqdDuG2O61bIc77P5YRC4OT2J57ceQjy5ak38bPb0kSCyZpU9cmP8xvY7MO1jmIAFpJVoLIF+XyRsiVGlX7WaXz1tHPXETjphjO2n2Wi8WH36uHmjOi+umbUNB0BMT03RoejkEtDbFWlLtDluYOn2eIarjJ0HceZAFS5yndh1leCzDBIPdDQZNahd0MyqAOgUlBViCbpZVOeaVNIyDy1YaJy2fXso6FClnL6IsljeTB08z0=
+after_success:
+  - coveralls
