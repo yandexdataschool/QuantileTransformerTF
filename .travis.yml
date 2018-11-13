@@ -7,7 +7,7 @@ install:
 - pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
 script:
 - pycodestyle . --max-line-length=99
-- pytest test.py --cov
+- pytest test.py --cov=quantile_transformer_tf/
 deploy:
   provider: pypi
   user: kazeev
