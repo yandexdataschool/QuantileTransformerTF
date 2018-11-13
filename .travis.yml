@@ -10,8 +10,8 @@ env:
   - TENSORFLOW_VERSION=""
 install:
 - pip install tensorflow$TENSORFLOW_VERSION
-- pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
 - python setup.py install
+- pip install scipy scikit-learn pycodestyle pytest pytest-cov coveralls
 script:
 - pycodestyle . --max-line-length=99
 - pytest test.py --cov=quantile_transformer_tf/
